@@ -756,7 +756,11 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                                         final senderName = (m['senderName'] ?? '').toString().trim();
                                         final body = (m['message'] ?? '').toString();
                                         final ts = fmtTs((m['createdAt'] ?? '').toString());
-                                        final mine = _normalizeRole(role) == _normalizeRole(_userRole);
+                                        final senderEmail = (m['senderEmail'] ?? '').toString().toLowerCase().trim();
+                                        final myIdentity = _currentActorIdentity();
+                                        final myEmail = (myIdentity['email'] ?? '').toString().toLowerCase().trim();
+                                        final mine = (senderEmail.isNotEmpty && myEmail.isNotEmpty && senderEmail == myEmail)
+                                            || _normalizeRole(role) == _normalizeRole(_userRole);
                                         final label = senderName.isNotEmpty
                                             ? '$senderName (${role.toUpperCase()})'
                                             : role.toUpperCase();

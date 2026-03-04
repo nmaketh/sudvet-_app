@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_state.dart';
 import '../data/case_repository.dart';
 
 class CaseChatPage extends StatefulWidget {
@@ -256,7 +259,21 @@ class _CaseChatPageState extends State<CaseChatPage> {
       return l == 'chw' ? 'cahw' : l;
     }
 
-    final mine = nr(role) == nr(_userRole);
+    // Primary: compare by sender email (most reliable — not affected by role format).
+    // Fallback: role string comparison.
+    final senderEmail = (item['senderEmail'] ?? '').toString().toLowerCase().trim();
+    bool mine;
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      final currentEmail = authState.user.email.toLowerCase().trim();
+      if (senderEmail.isNotEmpty && currentEmail.isNotEmpty) {
+        mine = senderEmail == currentEmail;
+      } else {
+        mine = nr(role) == nr(authState.user.role.toLowerCase());
+      }
+    } else {
+      mine = nr(role) == nr(_userRole);
+    }
     final ts = _formatTime(item['createdAt']);
     final label = _roleLabel(role);
 
