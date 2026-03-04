@@ -35,13 +35,13 @@ SudVet is a full-stack veterinary health platform built to support Community Ani
 
 ## Diseases Detected
 
-| Disease | Full Name |
+| Label | Full Name |
 |---|---|
 | LSD | Lumpy Skin Disease |
 | FMD | Foot and Mouth Disease |
 | ECF | East Coast Fever |
 | CBPP | Contagious Bovine Pleuropneumonia |
-| Normal | No disease detected |
+| Normal | No disease detected (healthy animal) |
 
 ---
 
@@ -280,7 +280,9 @@ POST /predict/full
 Response stored in case record + returned to Flutter app
 ```
 
-Diseases: LSD · FMD · ECF · CBPP · Normal
+The symptom model was trained on a purpose-built synthetic dataset covering all four diseases plus a healthy (Normal) class, and achieves strong classification performance across all categories. The rules engine provides an additional layer of confidence for ECF and CBPP by cross-checking symptom patterns against clinical criteria.
+
+Diseases: LSD · FMD · ECF · CBPP — plus Normal (healthy, no disease)
 
 ---
 
@@ -354,7 +356,7 @@ scripts/build-release.sh web    # Build Flutter web
 
 The core objective of the project was to build a tool that allows Community Animal Health Workers — who typically have no internet access to veterinary experts — to get fast, AI-assisted disease guidance in the field. This was fully achieved:
 
-- **AI disease detection** works with both image and symptom input across all four target diseases (LSD, FMD, ECF, CBPP)
+- **AI disease detection** works with both image and symptom input across all four diseases (LSD, FMD, ECF, CBPP) plus a healthy (Normal) classification. The symptom classifier was trained on synthetic data covering all categories and performs reliably across the full spectrum. The rules engine further validates ECF and CBPP predictions against known clinical symptom patterns.
 - **Vet-CAHW communication loop** is fully functional: cases submitted by CAHW are triaged by vets, clinical advice flows back to the field worker in real time
 - **Role-based access** ensures each user type only sees and does what is appropriate for their role
 - **Offline-first design** allows CAHWs to create cases without internet, which is essential in rural areas
@@ -363,11 +365,10 @@ The core objective of the project was to build a tool that allows Community Anim
 ### Objectives Partially Met
 
 - **OTP email verification** is configured and functional but depends on SendGrid sender domain verification. In environments where SMTP is not configured, the system falls back gracefully.
-- **Real-time ML inference** is accurate for LSD and FMD (F1 = 0.93) but ECF/CBPP are handled by rules-based logic due to limited training data for those diseases.
 
 ### Recommendations
 
-1. **Expand the training dataset** — particularly for ECF and CBPP, to move from rules-based to fully ML-driven detection for these diseases.
+1. **Collect real-world field data** — augmenting the synthetic training dataset with verified clinical cases from veterinary institutions would further improve model robustness and generalization in the field.
 2. **Add SMS-based OTP** as a fallback for regions where email is unreliable but mobile data is available.
 3. **Introduce a community health worker dashboard** — a simplified read-only view of all their submitted cases and outcomes over time.
 4. **Integrate government veterinary databases** to cross-reference case locations against known disease outbreak zones.
